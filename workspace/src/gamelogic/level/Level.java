@@ -197,7 +197,56 @@ public class Level {
 	//Your code goes here! 
 	//Please make sure you read the rubric/directions carefully and implement the solution recursively!
 	private void water(int col, int row, Map map, int fullness) {
-		
+    Tile[][] tiles = map.getTiles();
+
+    // Boundary check
+    if (col < 0 || col >= tiles.length || row < 0 || row >= tiles[0].length)
+        return;
+
+    // Don't overwrite water or solid tiles
+    if (tiles[col][row] instanceof Water || tiles[col][row].isSolid())
+        return;
+
+    // Determine image based on fullness
+    String imageName;
+    switch (fullness) {
+        case 3: imageName = "Full_water"; break;
+        case 2: imageName = "Half_water"; break;
+        case 1: imageName = "Quarter_water"; break;
+        default: imageName = "Falling_water"; break;
+    }
+
+    // Create and add water tile
+    Water w = new Water(col, row, tileSize, tileset.getImage(imageName), this, fullness);
+    map.addTile(col, row, w);
+
+    // Try to flow down
+    if (row + 1 < tiles[0].length && !tiles[col][row + 1].isSolid()) {
+        water(col, row + 1, map, 0);  // Falling_water
+        return;
+    }
+
+    // If not falling, flow sideways if fullness > 1
+    if (fullness > 1) {
+        // Flow right
+        if (col + 1 < tiles.length && !tiles[col + 1][row].isSolid()) {
+            if (row + 1 < tiles[0].length && !tiles[col + 1][row + 1].isSolid()) {
+                water(col + 1, row + 1, map, 0);
+            } else {
+                water(col + 1, row, map, fullness - 1);
+            }
+        }
+        // Flow left
+        if (col - 1 >= 0 && !tiles[col - 1][row].isSolid()) {
+            if (row + 1 < tiles[0].length && !tiles[col - 1][row + 1].isSolid()) {
+                water(col - 1, row + 1, map, 0);
+            } else {
+                water(col - 1, row, map, fullness - 1);
+            }
+        }
+    }
+
+
 	}
 
 
